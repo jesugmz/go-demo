@@ -56,11 +56,11 @@ func (c *client) FetchWithMetaData() ([]Card, map[string]int, error) {
 	// Access to the index 1 because the first contains the full match.
 	metaData["totalPages"], err = strconv.Atoi(re.FindStringSubmatch(resp.Header.Get("Link"))[1])
 	if err != nil {
-		return []Card{}, metaData, errors.New(fmt.Sprintf("could not extract Total Pages from headers: %v", err))
+		return []Card{}, metaData, fmt.Errorf("could not extract Total Pages from headers: %v", err)
 	}
 	metaData["rateLimit"], err = strconv.Atoi(resp.Header.Get("Ratelimit-Remaining"))
 	if err != nil {
-		return []Card{}, metaData, errors.New(fmt.Sprintf("could not extract Rate Limit from headers: %v", err))
+		return []Card{}, metaData, fmt.Errorf("could not extract Rate Limit from headers: %v", err)
 	}
 
 	return cards, metaData, err
@@ -73,7 +73,7 @@ func (c *client) fetch(page int) (*http.Response, error) {
 	// it here to speed up.
 	resp, err := http.Get(c.baseEndpoint + "/cards?page=" + strconv.Itoa(page))
 	if err != nil {
-		return &http.Response{}, errors.New(fmt.Sprintf("could not fetch data: %v", err))
+		return &http.Response{}, fmt.Errorf("could not fetch data: %v", err)
 	}
 
 	err = c.responseError(resp)
@@ -92,7 +92,7 @@ func (c *client) responseError(resp *http.Response) error {
 	// TODO: define the proper struct
 	var serverErr string
 	if err := json.NewDecoder(resp.Body).Decode(&serverErr); err != nil {
-		return errors.New(fmt.Sprintf("could not decode response error: %v", resp.Body))
+		return fmt.Errorf("could not decode response error: %v", resp.Body)
 	}
 
 	return errors.New(serverErr)

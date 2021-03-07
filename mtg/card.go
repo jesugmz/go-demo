@@ -2,7 +2,6 @@ package mtg
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"sort"
@@ -35,7 +34,7 @@ type CardStorage struct {
 func Decode(s io.Reader) ([]Card, error) {
 	var cards CardList
 	if err := json.NewDecoder(s).Decode(&cards); err != nil {
-		return []Card{}, errors.New(fmt.Sprintf("could not decode data: %v", s))
+		return []Card{}, fmt.Errorf("could not decode data: %v", s)
 	}
 
 	return cards.Cards, nil
